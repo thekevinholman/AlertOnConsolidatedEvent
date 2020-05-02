@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ManagementPack SchemaVersion="2.0" ContentReadable="true" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Manifest>
+    <Identity>
+      <ID>Demo.AlertOnConsolidatedEvent</ID>
+      <Version>1.0.0.1</Version>
+    </Identity>
+    <Name>Demo.AlertOnConsolidatedEvent</Name>
+    <References>
+      <Reference Alias="SC">
+        <ID>Microsoft.SystemCenter.Library</ID>
+        <Version>6.1.7221.0</Version>
+        <PublicKeyToken>31bf3856ad364e35</PublicKeyToken>
+      </Reference>
+	  <Reference Alias="Windows">
+        <ID>Microsoft.Windows.Library</ID>
+        <Version>7.5.8501.0</Version>
+        <PublicKeyToken>31bf3856ad364e35</PublicKeyToken>
+      </Reference>
+      <Reference Alias="Health">
+        <ID>System.Health.Library</ID>
+        <Version>7.0.8433.0</Version>
+        <PublicKeyToken>31bf3856ad364e35</PublicKeyToken>
+      </Reference>
+      <Reference Alias="System">
+        <ID>System.Library</ID>
+        <Version>7.5.8501.0</Version>
+        <PublicKeyToken>31bf3856ad364e35</PublicKeyToken>
+      </Reference>
+    </References>
+  </Manifest>
+  <Monitoring>
+    <Rules>
+      <Rule ID="Demo.AlertOnConsolidatedEvent.Event123.Alert.Rule" Enabled="true" Target="Windows!Microsoft.Windows.Server.OperatingSystem" ConfirmDelivery="true" Remotable="true" Priority="Normal" DiscardLevel="100">
+        <Category>Alert</Category>
+        <DataSources>
+          <DataSource ID="DS" TypeID="Windows!Microsoft.Windows.EventProvider">
+            <ComputerName>$Target/Host/Property[Type="Windows!Microsoft.Windows.Computer"]/NetworkName$</ComputerName>
+            <LogName>Application</LogName>
+            <Expression>
+              <SimpleExpression>
+                <ValueExpression>
+                  <XPathQuery Type="UnsignedInteger">EventDisplayNumber</XPathQuery>
+                </ValueExpression>
+                <Operator>Equal</Operator>
+                <ValueExpression>
+                  <Value Type="UnsignedInteger">123</Value>
+                </ValueExpression>
+              </SimpleExpression>
+            </Expression>
+          </DataSource>
+        </DataSources>
+        <ConditionDetection ID="CD" TypeID="System!System.ConsolidatorCondition">
+          <Consolidator>
+            <ConsolidationProperties>
+            </ConsolidationProperties>
+            <TimeControl>
+              <WithinTimeSchedule>
+                <Interval>30</Interval>
+                <!-- seconds -->
+              </WithinTimeSchedule>
+            </TimeControl>
+            <CountingCondition>
+              <CountMode>OnNewItemNOP_OnTimerOutputRestart</CountMode>
+            </CountingCondition>
+          </Consolidator>
+        </ConditionDetection>
+        <WriteActions>
+          <WriteAction ID="WA" TypeID="Health!System.Health.GenerateAlert">
+            <Priority>1</Priority>
+            <Severity>1</Severity>
+            <AlertMessageId>$MPElement[Name="Demo.AlertOnConsolidatedEvent.Event123.Alert.Rule.AlertMessage"]$</AlertMessageId>
+            <AlertParameters>
+              <AlertParameter1>$Data/Count$</AlertParameter1>
+              <AlertParameter2>$Data/TimeWindowStart$</AlertParameter2>
+              <AlertParameter3>$Data/TimeWindowEnd$</AlertParameter3>
+              <AlertParameter4>$Data/Context/DataItem/EventDescription$</AlertParameter4>
+            </AlertParameters>
+          </WriteAction>
+        </WriteActions>
+      </Rule>
+  </Rules>
+  </Monitoring>
+  <Presentation>
+    <StringResources>
+      <StringResource ID="Demo.AlertOnConsolidatedEvent.Event123.Alert.Rule.AlertMessage" />
+    </StringResources>
+  </Presentation>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="Demo.AlertOnConsolidatedEvent.Event123.Alert.Rule">
+          <Name>Demo Alert On Consolidated Event Rule</Name>
+          <Description />
+        </DisplayString>
+        <DisplayString ElementID="Demo.AlertOnConsolidatedEvent.Event123.Alert.Rule.AlertMessage">
+          <Name>One or more 123 events have occurred</Name>
+          <Description>The 123 event has occurred {0} times between {1} and {2}
+
+Event Description: {3}
+          </Description>
+        </DisplayString>		
+      </DisplayStrings>
+      <KnowledgeArticles></KnowledgeArticles>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPack>
